@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimensionamento Solar</title>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-label: #475569;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --result-bg: #f1f5f9;
+            --success-bg: #ecfdf5;
+            --success-border: #a7f3d0;
+            --success-text: #065f46;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--bg-card);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h2 {
+            color: var(--text-main);
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-label);
+            margin-bottom: 0.3rem;
+        }
+
+        select, input[type="number"], .input-shared {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            line-height: 1.5;
+        }
+
+        select, input[type="number"] {
+            background-color: #fff;
+            color: var(--text-main);
+        }
+
+        select:focus, input[type="number"]:focus, #cidade:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        select:disabled, input[type="number"]:disabled {
+            background-color: #f1f5f9;
+            cursor: not-allowed;
+            color: #94a3b8;
+        }
+
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+        }
+
+        #cidadeHint {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fff;
+            color: #94a3b8;
+            border-color: transparent;
+            z-index: 1;
+        }
+
+        #cidade {
+            position: relative;
+            background-color: transparent;
+            color: var(--text-main);
+            z-index: 2;
+        }
+
+        #cidade:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            margin-top: 0.25rem;
+            padding: 0;
+            list-style: none;
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
+        }
+
+        .autocomplete-list li {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.875rem;
+        }
+
+        .autocomplete-list li .text-light { color: #94a3b8; }
+        .autocomplete-list li strong { font-weight: 600; color: var(--text-main); }
+        .autocomplete-list li:hover, .autocomplete-list li.active { background-color: var(--result-bg); }
+        .autocomplete-list li:hover .text-light, .autocomplete-list li.active .text-light { color: #64748b; }
+        .autocomplete-list li:hover strong, .autocomplete-list li.active strong { color: var(--primary); }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: background-color 0.2s, opacity 0.2s;
+        }
+
+        button:hover:not(:disabled) { background-color: var(--primary-hover); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        #loading {
+            display: none;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+            font-weight: 500;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        #resultado { display: none; margin-top: 1.5rem; }
+        .card-result { background-color: var(--result-bg); padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 0.75rem; }
+        .card-calc { background-color: var(--success-bg); border-color: var(--success-border); }
+        .card-result h3 { margin: 0 0 0.75rem 0; font-size: 0.95rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.05em; }
+        .result-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-label); }
+        .highlight { font-weight: bold; color: var(--primary); font-size: 1rem; }
+        .highlight-success { font-weight: bold; color: var(--success-text); font-size: 1.1rem; }
+        .coords { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Dimensionamento Solar</h2>
+        
+        <form onsubmit="event.preventDefault(); calcularSistema();">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <select id="estado" onchange="carregarCidades()" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group autocomplete-container">
+                    <label for="cidade">Cidade</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="cidadeHint" class="input-shared" disabled autocomplete="off">
+                        <input type="text" id="cidade" class="input-shared" placeholder="Aguarde o Estado" autocomplete="off" required disabled>
+                    </div>
+                    <ul id="listaCidades" class="autocomplete-list"></ul>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="consumo">Consumo Mensal (kWh)</label>
+                    <input type="number" id="consumo" placeholder="Ex: 400" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="potenciaPlaca">Potência da Placa (W)</label>
+                    <input type="number" id="potenciaPlaca" value="550" min="1" required>
+                </div>
+            </div>
+
+            <button type="submit" id="btnConsultar">
+                Calcular Sistema
+            </button>
+        </form>
+
+        <div id="loading">Processando cálculos geográficos e solares...</div>
+
+        <div id="resultado">
+            <div class="card-result card-calc">
+                <h3>Dimensionamento Recomendado</h3>
+                <div class="result-item">
+                    <span>Potência do Sistema:</span>
+                    <span id="resPotenciaKwp" class="highlight-success"></span>
+                </div>
+                <div class="result-item">
+                    <span>Quantidade de Placas:</span>
+                    <span id="resQtdPlacas" class="highlight-success"></span>
+                </div>
+                <div class="result-item" style="border-top: 1px solid var(--success-border); padding-top: 0.5rem; margin-top: 0.5rem;">
+                    <span>Inversor Sugerido:</span>
+                    <span id="resInversor" class="highlight-success"></span>
+                </div>
+            </div>
+
+            <div class="card-result">
+                <h3>Dados Ambientais (NASA POWER)</h3>
+                <div class="result-item">
+                    <span>Irradiação Média (HSP):</span>
+                    <span class="highlight"><span id="mediaAnual"></span> kWh/m²/dia</span>
+                </div>
+                <div class="result-item">
+                    <span>Perda Estimada:</span>
+                    <span class="highlight">20%</span>
+                </div>
+            </div>
+            
+            <div id="coords" class="coords"></div>
+        </div>
+    </div>
+
+    <script>
+        let cidadesDoEstado = [];
+        let currentFocus = -1;
+        let textoOriginal = ''; // Guarda o que o usuário realmente digitou
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const selectEstado = document.getElementById('estado');
+            try {
+                const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+                const estados = await res.json();
+                estados.forEach(uf => {
+                    const option = document.createElement('option');
+                    option.value = uf.sigla;
+                    option.textContent = uf.sigla;
+                    selectEstado.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Erro:", error);
+            }
+        });
+
+        async function carregarCidades() {
+            const uf = document.getElementById('estado').value;
+            const inputCidade = document.getElementById('cidade');
+            
+            fecharLista();
+            cidadesDoEstado = []; 
+
+            if (!uf) {
+                inputCidade.disabled = true;
+                inputCidade.placeholder = "Aguarde o Estado";
+                return;
+            }
+
+            inputCidade.disabled = true;
+            inputCidade.placeholder = "Carregando...";
+
+            try {
+                const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+                cidadesDoEstado = await res.json();
+                
+                inputCidade.disabled = false;
+                inputCidade.placeholder = "Digite a cidade...";
+            } catch (error) {
+                inputCidade.placeholder = "Erro ao carregar";
+            }
+        }
+
+        // ==========================================
+        // EVENTO: Digitação
+        // ==========================================
+        document.getElementById('cidade').addEventListener('input', function(e) {
+            textoOriginal = this.value; // Salva o que foi digitado
+            const valorDigitado = this.value;
+            const valorLower = valorDigitado.toLowerCase();
+            const lista = document.getElementById('listaCidades');
+            const hint = document.getElementById('cidadeHint');
+            
+            lista.innerHTML = '';
+            hint.value = '';
+            currentFocus = -1;
+            
+            if (valorDigitado.length >= 3) {
+                const cidadesFiltradas = cidadesDoEstado.filter(cidade => 
+                    cidade.nome.toLowerCase().includes(valorLower)
+                );
+                
+                if (cidadesFiltradas.length > 0) {
+                    const primeiraCidade = cidadesFiltradas[0].nome;
+                    if (primeiraCidade.toLowerCase().startsWith(valorLower)) {
+                        hint.value = valorDigitado + primeiraCidade.substring(valorDigitado.length);
+                    }
+                    
+                    cidadesFiltradas.forEach(cidade => {
+                        const li = document.createElement('li');
+                        const matchIndex = cidade.nome.toLowerCase().indexOf(valorLower);
+                        const before = cidade.nome.substring(0, matchIndex);
+                        const match = cidade.nome.substring(matchIndex, matchIndex + valorDigitado.length);
+                        const after = cidade.nome.substring(matchIndex + valorDigitado.length);
+                        
+                        li.innerHTML = `<span class="text-light">${before}</span><strong>${match}</strong><span class="text-light">${after}</span>`;
+                        li.dataset.nome = cidade.nome;
+                        
+                        li.onclick = () => {
+                            document.getElementById('cidade').value = cidade.nome;
+                            textoOriginal = cidade.nome;
+                            fecharLista();
+                        };
+                        lista.appendChild(li);
+                    });
+                    lista.style.display = 'block';
+                } else {
+                    lista.style.display = 'none';
+                }
+            } else {
+                lista.style.display = 'none';
+            }
+        });
+
+        // ==========================================
+        // EVENTO: Teclado (Setas)
+        // ==========================================
+        document.getElementById('cidade').addEventListener('keydown', function(e) {
+            const lista = document.getElementById('listaCidades');
+            const hint = document.getElementById('cidadeHint');
+            let items = lista.getElementsByTagName('li');
+            
+            if (lista.style.display === 'block') {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    currentFocus++;
+                    addActive(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    currentFocus--;
+                    addActive(items);
+                } else if (e.key === 'Enter' || e.key === 'Tab') {
+                    e.preventDefault();
+                    
+                    if (currentFocus > -1 && items[currentFocus]) {
+                        this.value = items[currentFocus].dataset.nome;
+                        textoOriginal = this.value;
+                        fecharLista();
+                    } else if (hint.value) {
+                        this.value = hint.value;
+                        textoOriginal = this.value;
+                        fecharLista();
+                    }
+                }
+            }
+        });
+
+        function addActive(items) {
+            if (!items || items.length === 0) return;
+            
+            for (let i = 0; i < items.length; i++) {
+                items[i].classList.remove('active');
+            }
+            
+            const input = document.getElementById('cidade');
+            const hint = document.getElementById('cidadeHint');
+            
+            // Loop na lista
+            if (currentFocus >= items.length) currentFocus = -1; // Volta ao texto original
+            if (currentFocus < -1) currentFocus = items.length - 1; // Vai para o final da lista
+            
+            if (currentFocus === -1) {
+                // Voltou para fora da lista
+                input.value = textoOriginal;
+            } else {
+                // Navegando na lista
+                items[currentFocus].classList.add('active');
+                items[currentFocus].scrollIntoView({ block: 'nearest' });
+                
+                // Muda o texto do input acompanhando a seta
+                input.value = items[currentFocus].dataset.nome;
+                hint.value = ''; // Oculta o fantasma para não sobrepor
+            }
+        }
+
+        function fecharLista() {
+            document.getElementById('listaCidades').style.display = 'none';
+            document.getElementById('cidadeHint').value = '';
+            currentFocus = -1;
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.autocomplete-container')) {
+                fecharLista();
+            }
+        });
+
+        // ==========================================
+        // CÁLCULO GERAL
+        // ==========================================
+        async function calcularSistema() {
+            const estado = document.getElementById('estado').value;
+            const cidade = document.getElementById('cidade').value;
+            const consumo = parseFloat(document.getElementById('consumo').value);
+            const potenciaPlaca = parseFloat(document.getElementById('potenciaPlaca').value);
+            
+            const btn = document.getElementById('btnConsultar');
+            const loading = document.getElementById('loading');
+            const resultado = document.getElementById('resultado');
+
+            btn.disabled = true;
+            loading.style.display = 'block';
+            resultado.style.display = 'none';
+
+            try {
+                const urlGeo = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cidade)}&state=${encodeURIComponent(estado)}&country=Brazil&format=json&limit=1`;
+                const resGeo = await fetch(urlGeo);
+                const dataGeo = await resGeo.json();
+
+                if (dataGeo.length === 0) {
+                    alert("Cidade não encontrada no mapa. Verifique se o nome está correto.");
+                    throw new Error("Cidade não encontrada no mapa.");
+                }
+                
+                const lat = parseFloat(dataGeo[0].lat).toFixed(4);
+                const lon = parseFloat(dataGeo[0].lon).toFixed(4);
+
+                const urlNasa = `https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=${lon}&latitude=${lat}&format=JSON`;
+                const resNasa = await fetch(urlNasa);
+                const dataNasa = await resNasa.json();
+
+                const hsp = dataNasa.properties.parameter.ALLSKY_SFC_SW_DWN.ANN;
+
+                const perdaProducao = 0.20; 
+                const eficienciaSistema = 1 - perdaProducao;
+                
+                const consumoDiario = consumo / 30;
+                const potenciaKwp = consumoDiario / (hsp * eficienciaSistema);
+                
+                const potenciaSistemaWatts = potenciaKwp * 1000;
+                const qtdPlacas = Math.ceil(potenciaSistemaWatts / potenciaPlaca);
+                
+                const inversorMin = (potenciaKwp / 1.25).toFixed(1);
+                const inversorMax = (potenciaKwp).toFixed(1);
+
+                document.getElementById('mediaAnual').textContent = hsp.toFixed(2);
+                document.getElementById('resPotenciaKwp').textContent = potenciaKwp.toFixed(2) + " kWp";
+                document.getElementById('resQtdPlacas').textContent = `${qtdPlacas} placa${qtdPlacas > 1 ? 's' : ''}`;
+                document.getElementById('resInversor').textContent = `De ${inversorMin} a ${inversorMax} kW`;
+                document.getElementById('coords').textContent = `Coordenadas usadas: Lat ${lat}, Lon ${lon}`;
+                
+                loading.style.display = 'none';
+                resultado.style.display = 'block';
+
+                const dadosCalculoJSON = {
+                    timestamp: new Date().toISOString(),
+                    entradas: { estado, cidade, consumoMensal_kWh: consumo, potenciaPlaca_W: potenciaPlaca, perdaConsiderada: `${perdaProducao * 100}%` },
+                    geolocalizacao: { latitude: parseFloat(lat), longitude: parseFloat(lon) },
+                    dadosSolares: { irradiacaoMedia_HSP: parseFloat(hsp.toFixed(2)) },
+                    dimensionamento: {
+                        consumoDiario_kWh: parseFloat(consumoDiario.toFixed(2)),
+                        potenciaSistema_kWp: parseFloat(potenciaKwp.toFixed(2)),
+                        quantidadePlacas: qtdPlacas,
+                        inversorRecomendado_kW: { min: parseFloat(inversorMin), max: parseFloat(inversorMax) }
+                    }
+                };
+
+                console.group(`Nova Consulta - ${cidade}/${estado}`);
+                console.log(JSON.stringify(dadosCalculoJSON, null, 2));
+                console.groupEnd();
+
+            } catch (error) {
+                loading.style.display = 'none';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
