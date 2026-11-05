@@ -5,349 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dimensionamento Solar Pro</title>
     
-    <!-- Fonte Inter do Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <style>
-        /* Variáveis de Tema */
-        :root[data-theme="light"] {
-            --primary: #0ea5e9;
-            --primary-dark: #0284c7;
-            --bg-body: #f8fafc;
-            --bg-card: #ffffff;
-            --text-main: #0f172a;
-            --text-label: #475569;
-            --text-muted: #94a3b8;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --success-bg: #ecfdf5;
-            --success-border: #a7f3d0;
-            --warning: #f59e0b;
-            --warning-bg: #fffbeb;
-            --warning-border: #fde68a;
-            --list-hover: #f1f5f9;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        :root[data-theme="dark"] {
-            --primary: #1fa0d7;
-            --primary-dark: #0ea5e9;
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --text-main: #f8fafc;
-            --text-label: #94a3b8;
-            --text-muted: #64748b;
-            --border: #334155;
-            --success: #34d399;
-            --success-bg: rgba(16, 185, 129, 0.1);
-            --success-border: rgba(16, 185, 129, 0.3);
-            --warning: #fbbf24;
-            --warning-bg: rgba(245, 158, 11, 0.1);
-            --warning-border: rgba(245, 158, 11, 0.3);
-            --list-hover: #273548;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
-        }
-
-        body {
-            background-color: var(--bg-body);
-            font-family: 'Inter', system-ui, sans-serif;
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1rem;
-            box-sizing: border-box;
-            color: var(--text-main);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .container {
-            background-color: var(--bg-card);
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 540px;
-            border: 1px solid var(--border);
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-        }
-
-        /* Botão de alternância de Tema */
-        .theme-toggle {
-            position: absolute;
-            top: 2rem;
-            right: 2.5rem;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-label);
-            transition: all 0.2s;
-            padding: 0;
-            margin: 0;
-            box-shadow: none;
-        }
-
-        .theme-toggle:hover {
-            background-color: var(--list-hover);
-            color: var(--primary);
-            transform: none;
-        }
-
-        .theme-toggle svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Ícones de sol/lua dinâmicos via CSS */
-        [data-theme="light"] .icon-moon { display: block; }
-        [data-theme="light"] .icon-sun { display: none; }
-        [data-theme="dark"] .icon-moon { display: none; }
-        [data-theme="dark"] .icon-sun { display: block; }
-
-        .header {
-            text-align: left;
-            margin-bottom: 2rem;
-            padding-right: 3rem; /* Espaço para o botão de tema */
-        }
-
-        .header h2 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-main);
-            letter-spacing: -0.025em;
-        }
-
-        .header p {
-            margin: 0;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .form-grid.equal {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        label {
-            display: block;
-            font-size: 0.8125rem;
-            font-weight: 600;
-            color: var(--text-label);
-            margin-bottom: 0.375rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        select, input[type="number"], .input-shared {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.9375rem;
-            font-family: inherit;
-            outline: none;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-            background-color: var(--bg-card);
-            color: var(--text-main);
-            line-height: 1.5;
-        }
-
-        select:focus, input[type="number"]:focus, #cidade:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
-        }
-
-        select:disabled, input[type="number"]:disabled, .input-shared:disabled {
-            background-color: var(--bg-body);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            border-color: var(--border);
-        }
-
-        /* Autocomplete */
-        .input-wrapper { position: relative; display: flex; }
-        #cidadeHint { position: absolute; top: 0; left: 0; background: transparent; color: var(--text-muted); border-color: transparent; z-index: 1; pointer-events: none; }
-        #cidade { position: relative; background: transparent; z-index: 2; }
-        
-        .autocomplete-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-top: 0.25rem;
-            padding: 0.25rem 0;
-            list-style: none;
-            max-height: 180px;
-            overflow-y: auto;
-            box-shadow: var(--shadow);
-            z-index: 10;
-            display: none;
-        }
-
-        .autocomplete-list li {
-            padding: 0.625rem 1rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: background 0.1s;
-            color: var(--text-main);
-        }
-        .autocomplete-list li .text-light { color: var(--text-muted); }
-        .autocomplete-list li strong { font-weight: 600; color: var(--text-main); }
-        .autocomplete-list li:hover, .autocomplete-list li.active { background-color: var(--list-hover); }
-        .autocomplete-list li:hover strong, .autocomplete-list li.active strong { color: var(--primary); }
-
-        /* Botão Primário */
-        button[type="submit"] {
-            width: 100%;
-            /* background: linear-gradient(135deg, var(--primary), var(--primary-dark)); */
-            /* background-color: #04557a;
-            color: #fff; */
-            background-color: #fff;
-            color: #04557a;
-            font-weight: 600;
-            font-size: 1rem;
-            padding: 0.875rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 1rem;
-            /* box-shadow: 0 0 15px -2px rgba(138, 206, 238, 0.626); */
-            transition: all 0.2s ease;
-        }
-
-        button[type="submit"]:hover:not(:disabled) {
-            transform: translateY(-1px);
-            opacity: 0.95;
-        }
-
-        button[type="submit"]:disabled { opacity: 0.7; cursor: not-allowed; filter: grayscale(50%); }
-
-        /* Loading Spinner */
-        #loading {
-            display: none;
-            text-align: center;
-            color: var(--text-label);
-            margin-top: 2rem;
-            font-weight: 500;
-            font-size: 0.875rem;
-        }
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-            vertical-align: middle;
-            margin-right: 0.5rem;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Dashboard de Resultados */
-        #resultado { display: none; margin-top: 2rem; }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .dash-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            transition: background 0.3s, border-color 0.3s;
-        }
-        
-        .dash-card.featured {
-            background: var(--success-bg);
-            border-color: var(--success-border);
-        }
-
-        .dash-card.warning {
-            background: var(--warning-bg);
-            border-color: var(--warning-border);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-label);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .card-header svg { width: 16px; height: 16px; opacity: 0.8; }
-        
-        .card-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .dash-card.featured .card-value { color: var(--success); }
-        .dash-card.warning .card-value { color: var(--warning); }
-        
-        .coords {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-align: center;
-            margin-top: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.25rem;
-        }
-
-        @media (max-width: 480px) {
-            .form-grid, .form-grid.equal, .dashboard-grid { grid-template-columns: 1fr; }
-            .container { padding: 1.5rem; }
-            .theme-toggle { top: 1.5rem; right: 1.5rem; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
-        <!-- Botão de Alternância de Tema -->
-        <button type="button" class="theme-toggle" onclick="alternarTema()" title="Alternar Tema">
-            <!-- Ícone Lua (Modo Escuro) -->
+        <button type="button" class="theme-toggle" title="Alternar Tema">
             <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-            <!-- Ícone Sol (Modo Claro) -->
             <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
 
@@ -356,11 +24,11 @@
             <p>Calculadora Fotovoltaica baseada em dados NASA POWER</p>
         </div>
         
-        <form onsubmit="event.preventDefault(); calcularSistema();">
+        <form>
             <div class="form-grid">
                 <div class="form-group">
                     <label for="estado">Estado</label>
-                    <select id="estado" onchange="carregarCidades()" required>
+                    <select id="estado" required autofocus>
                         <option value="">UF</option>
                     </select>
                 </div>
@@ -392,312 +60,43 @@
             </button>
         </form>
 
-        <div id="loading">
-            <div class="spinner"></div> Processando dados climáticos...
-        </div>
+        <div id="loading"><div class="spinner"></div> Processando dados climáticos...</div>
 
         <div id="resultado">
             <div class="dashboard-grid">
-                <!-- Card 1: Potência -->
                 <div class="dash-card featured">
-                    <div class="card-header">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                        Capacidade do Sistema
-                    </div>
+                    <div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Capacidade do Sistema</div>
                     <div class="card-value" id="resPotenciaKwp">-</div>
                 </div>
-
-                <!-- Card 2: Placas -->
                 <div class="dash-card featured">
-                    <div class="card-header">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
-                        Módulos Necessários
-                    </div>
+                    <div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg> Módulos Necessários</div>
                     <div class="card-value" id="resQtdPlacas">-</div>
                 </div>
-                
-                <!-- Card 3: Inversor -->
                 <div class="dash-card">
-                    <div class="card-header">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-                        Inversor Recomendado
-                    </div>
-                    <div class="card-value" id="resInversor" style="font-size: 1.1rem;">-</div>
+                    <div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg> Inversor Recomendado</div>
+                    <div class="card-value card-value-small" id="resInversor">-</div>
                 </div>
-
-                <!-- Card 4: Irradiação -->
                 <div class="dash-card warning">
-                    <div class="card-header">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                        HSP (NASA Power)
-                    </div>
-                    <div class="card-value"><span id="mediaAnual">-</span> <span style="font-size: 0.8rem; font-weight: 500;">kWh/m²</span></div>
+                    <div class="card-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg> HSP (NASA Power)</div>
+                    <div class="card-value"><span id="mediaAnual">-</span> <span class="card-unit">kWh/m²</span></div>
                 </div>
             </div>
-            
-            <div class="coords">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                <span id="coords">-</span>
+            <!-- Substitua a div .coords por este bloco -->
+            <div class="location-actions">
+                <div class="coords">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span id="coords">-</span>
+                </div>
+                
+                <!-- Novo botão do Google Maps -->
+                <a id="linkMaps" href="#" target="_blank" class="btn-maps">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+                    Abrir no Google Maps
+                </a>
             </div>
         </div>
     </div>
 
-    <script>
-        let cidadesDoEstado = [];
-        let currentFocus = -1;
-        let textoOriginal = '';
-
-        // Inicialização do Tema (Sistema ou LocalStorage)
-        document.addEventListener("DOMContentLoaded", async () => {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-            } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-
-            const selectEstado = document.getElementById('estado');
-            try {
-                const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
-                const estados = await res.json();
-                estados.forEach(uf => {
-                    const option = document.createElement('option');
-                    option.value = uf.sigla;
-                    option.textContent = uf.sigla;
-                    selectEstado.appendChild(option);
-                });
-            } catch (error) {
-                console.error("Erro IBGE:", error);
-            }
-        });
-
-        function alternarTema() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }
-
-        async function carregarCidades() {
-            const uf = document.getElementById('estado').value;
-            const inputCidade = document.getElementById('cidade');
-            
-            fecharLista();
-            cidadesDoEstado = []; 
-
-            if (!uf) {
-                inputCidade.disabled = true;
-                inputCidade.placeholder = "Aguarde o Estado";
-                return;
-            }
-
-            inputCidade.disabled = true;
-            inputCidade.placeholder = "Carregando...";
-
-            try {
-                const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
-                cidadesDoEstado = await res.json();
-                
-                inputCidade.disabled = false;
-                inputCidade.placeholder = "Nome da cidade...";
-            } catch (error) {
-                inputCidade.placeholder = "Erro ao carregar";
-            }
-        }
-
-        // ==========================================
-        // UI: Autocomplete Inteligente
-        // ==========================================
-        document.getElementById('cidade').addEventListener('input', function(e) {
-            textoOriginal = this.value;
-            const valorDigitado = this.value;
-            const valorLower = valorDigitado.toLowerCase();
-            const lista = document.getElementById('listaCidades');
-            const hint = document.getElementById('cidadeHint');
-            
-            lista.innerHTML = '';
-            hint.value = '';
-            currentFocus = -1;
-            
-            if (valorDigitado.length >= 3) {
-                const cidadesFiltradas = cidadesDoEstado.filter(cidade => 
-                    cidade.nome.toLowerCase().includes(valorLower)
-                );
-                
-                if (cidadesFiltradas.length > 0) {
-                    const primeiraCidade = cidadesFiltradas[0].nome;
-                    if (primeiraCidade.toLowerCase().startsWith(valorLower)) {
-                        hint.value = valorDigitado + primeiraCidade.substring(valorDigitado.length);
-                    }
-                    
-                    cidadesFiltradas.forEach(cidade => {
-                        const li = document.createElement('li');
-                        const matchIndex = cidade.nome.toLowerCase().indexOf(valorLower);
-                        const before = cidade.nome.substring(0, matchIndex);
-                        const match = cidade.nome.substring(matchIndex, matchIndex + valorDigitado.length);
-                        const after = cidade.nome.substring(matchIndex + valorDigitado.length);
-                        
-                        li.innerHTML = `<span class="text-light">${before}</span><strong>${match}</strong><span class="text-light">${after}</span>`;
-                        li.dataset.nome = cidade.nome;
-                        
-                        li.onclick = () => {
-                            document.getElementById('cidade').value = cidade.nome;
-                            textoOriginal = cidade.nome;
-                            fecharLista();
-                        };
-                        lista.appendChild(li);
-                    });
-                    lista.style.display = 'block';
-                } else {
-                    lista.style.display = 'none';
-                }
-            } else {
-                lista.style.display = 'none';
-            }
-        });
-
-        // ==========================================
-        // UI: Navegação por Teclado
-        // ==========================================
-        document.getElementById('cidade').addEventListener('keydown', function(e) {
-            const lista = document.getElementById('listaCidades');
-            const hint = document.getElementById('cidadeHint');
-            let items = lista.getElementsByTagName('li');
-            
-            if (lista.style.display === 'block') {
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    currentFocus++;
-                    addActive(items);
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    currentFocus--;
-                    addActive(items);
-                } else if (e.key === 'Enter' || e.key === 'Tab') {
-                    e.preventDefault();
-                    if (currentFocus > -1 && items[currentFocus]) {
-                        this.value = items[currentFocus].dataset.nome;
-                        textoOriginal = this.value;
-                        fecharLista();
-                    } else if (hint.value) {
-                        this.value = hint.value;
-                        textoOriginal = this.value;
-                        fecharLista();
-                    }
-                }
-            }
-        });
-
-        function addActive(items) {
-            if (!items || items.length === 0) return;
-            for (let i = 0; i < items.length; i++) items[i].classList.remove('active');
-            
-            const input = document.getElementById('cidade');
-            const hint = document.getElementById('cidadeHint');
-            
-            if (currentFocus >= items.length) currentFocus = -1;
-            if (currentFocus < -1) currentFocus = items.length - 1;
-            
-            if (currentFocus === -1) {
-                input.value = textoOriginal;
-            } else {
-                items[currentFocus].classList.add('active');
-                items[currentFocus].scrollIntoView({ block: 'nearest' });
-                input.value = items[currentFocus].dataset.nome;
-                hint.value = '';
-            }
-        }
-
-        function fecharLista() {
-            document.getElementById('listaCidades').style.display = 'none';
-            document.getElementById('cidadeHint').value = '';
-            currentFocus = -1;
-        }
-
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.autocomplete-container')) fecharLista();
-        });
-
-        // ==========================================
-        // LÓGICA CORE: API e Matemática
-        // ==========================================
-        async function calcularSistema() {
-            const estado = document.getElementById('estado').value;
-            const cidade = document.getElementById('cidade').value;
-            const consumo = parseFloat(document.getElementById('consumo').value);
-            const potenciaPlaca = parseFloat(document.getElementById('potenciaPlaca').value);
-            
-            const btn = document.getElementById('btnConsultar');
-            const loading = document.getElementById('loading');
-            const resultado = document.getElementById('resultado');
-
-            btn.disabled = true;
-            btn.innerHTML = 'Consultando NASA...';
-            loading.style.display = 'block';
-            resultado.style.display = 'none';
-
-            try {
-                const urlGeo = `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(cidade)}&state=${encodeURIComponent(estado)}&country=Brazil&format=json&limit=1`;
-                const resGeo = await fetch(urlGeo);
-                const dataGeo = await resGeo.json();
-
-                if (dataGeo.length === 0) {
-                    alert("Cidade não encontrada no mapa. Verifique a ortografia.");
-                    throw new Error("Geocoding failed");
-                }
-                
-                const lat = parseFloat(dataGeo[0].lat).toFixed(4);
-                const lon = parseFloat(dataGeo[0].lon).toFixed(4);
-
-                const urlNasa = `https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=${lon}&latitude=${lat}&format=JSON`;
-                const resNasa = await fetch(urlNasa);
-                const dataNasa = await resNasa.json();
-
-                const hsp = dataNasa.properties.parameter.ALLSKY_SFC_SW_DWN.ANN;
-
-                const perdaProducao = 0.20; 
-                const eficienciaSistema = 1 - perdaProducao;
-                const consumoDiario = consumo / 30;
-                
-                const potenciaKwp = consumoDiario / (hsp * eficienciaSistema);
-                const potenciaSistemaWatts = potenciaKwp * 1000;
-                const qtdPlacas = Math.ceil(potenciaSistemaWatts / potenciaPlaca);
-                
-                const inversorMin = (potenciaKwp / 1.25).toFixed(1);
-                const inversorMax = (potenciaKwp).toFixed(1);
-
-                document.getElementById('mediaAnual').textContent = hsp.toFixed(2);
-                document.getElementById('resPotenciaKwp').textContent = potenciaKwp.toFixed(2) + " kWp";
-                document.getElementById('resQtdPlacas').textContent = `${qtdPlacas} unid.`;
-                document.getElementById('resInversor').textContent = `${inversorMin} a ${inversorMax} kW`;
-                document.getElementById('coords').textContent = `Lat: ${lat} | Lon: ${lon}`;
-                
-                loading.style.display = 'none';
-                resultado.style.display = 'block';
-
-                const payloadJSON = {
-                    timestamp: new Date().toISOString(),
-                    entradas: { estado, cidade, consumoMensal_kWh: consumo, potenciaPlaca_W: potenciaPlaca, eficiencia: `${eficienciaSistema * 100}%` },
-                    geolocalizacao: { latitude: parseFloat(lat), longitude: parseFloat(lon) },
-                    dimensionamento: {
-                        HSP_Nasa: parseFloat(hsp.toFixed(2)),
-                        potencia_kWp: parseFloat(potenciaKwp.toFixed(2)),
-                        modulos: qtdPlacas,
-                        inversor_kW: { min: parseFloat(inversorMin), max: parseFloat(inversorMax) }
-                    }
-                };
-
-                console.group(`Dashboard Solar - ${cidade}/${estado}`);
-                console.log(JSON.stringify(payloadJSON, null, 2));
-                console.groupEnd();
-
-            } catch (error) {
-                loading.style.display = 'none';
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Dimensionar Sistema';
-            }
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
