@@ -213,11 +213,11 @@ let cidadesDoEstado = [];
 
                 const hsp = dataNasa.properties.parameter.ALLSKY_SFC_SW_DWN.ANN;
 
-                const perdaProducao = 0.20; 
-                const eficienciaSistema = 1 - perdaProducao;
+                const perdaProducao = 0.25; 
+                const eficienciaSistema = 1 - perdaProducao; //eficiencia do sistema em 75%
                 const consumoDiario = consumo / 30;
                 
-                const potenciaKwp = consumoDiario / (hsp * eficienciaSistema);
+                const potenciaKwp = consumoDiario / (hsp * eficienciaSistema); 
                 const potenciaSistemaWatts = potenciaKwp * 1000;
                 const qtdPlacas = Math.ceil(potenciaSistemaWatts / potenciaPlaca);
                 
